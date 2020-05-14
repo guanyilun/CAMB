@@ -860,6 +860,7 @@ def internal_consistency_checks():
 
     # All equations should be gauge invariant
     for cons in constraints:
+        print(simplify(subs(Friedmann_Kfac_subs, make_frame_invariant(cons)) - cons))
         assert (simplify(subs(Friedmann_Kfac_subs, make_frame_invariant(cons)) - cons) == 0)
 
     # Check deta equations consistent

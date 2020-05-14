@@ -58,7 +58,7 @@ def threej_coupling(W, lmax, pol=False):
     Calculate symmetric coupling matrix :math`\Xi` for given weights :math:`W_{\ell}`,
     where :math:`\langle\tilde{C}_\ell\rangle = \Xi_{\ell \ell'} (2\ell'+1) C_\ell`.
     The weights are related to the power spectrum of the mask P
-    by :math:`W_\ell = (2 * \ell + 1) P_\ell / 4 \pi`
+    by :math:`W_\ell = (2 \ell + 1) P_\ell / 4 \pi`.
     See e.g. Eq D16 of `arxiv:0801.0554 <http://arxiv.org/abs/0801.0554>`_.
 
     If pol is False and W is an array of weights, produces array of temperature couplings, otherwise for pol is True
