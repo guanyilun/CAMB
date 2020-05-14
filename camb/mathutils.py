@@ -56,7 +56,7 @@ _coupling_3j.argtypes = [numpy_2d, POINTER(c_int), POINTER(c_int), POINTER(c_boo
 def threej_coupling(W, lmax, pol=False):
     r"""
     Calculate symmetric coupling matrix :math`\Xi` for given weights :math:`W_{\ell}`,
-    where :math:`\langle\tilde{C}_\ell\rangle = \Xi_{\ell \ell'} (2\ell'+1) C_\ell'.
+    where :math:`\langle\tilde{C}_\ell\rangle = \Xi_{\ell \ell'} (2\ell'+1) C_\ell`.
     The weights are related to the power spectrum of the mask P
     by :math:`W_\ell = (2 * \ell + 1) P_\ell / 4 \pi`
     See e.g. Eq D16 of `arxiv:0801.0554 <http://arxiv.org/abs/0801.0554>`_.

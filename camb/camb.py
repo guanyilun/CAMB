@@ -197,9 +197,10 @@ def get_valid_numerical_params(transfer_only=False, **class_names):
         pars = getfullargspec(set_func)
         for arg in pars.args[1:len(pars.args) - len(pars.defaults or [])]:
             params.add(arg)
-        for arg, v in zip(pars.args[len(pars.args) - len(pars.defaults or []):], pars.defaults):
-            if (isinstance(v, numbers.Number) or v is None) and 'version' not in arg:
-                params.add(arg)
+        if pars.defaults:
+            for arg, v in zip(pars.args[len(pars.args) - len(pars.defaults):], pars.defaults):
+                if (isinstance(v, numbers.Number) or v is None) and 'version' not in arg:
+                    params.add(arg)
 
     extract_params(cp.DarkEnergy.set_params)
     extract_params(cp.set_cosmology)
