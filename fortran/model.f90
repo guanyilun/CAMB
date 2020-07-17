@@ -184,6 +184,12 @@
         logical :: Log_lvalues  = .false. !useful for smooth results at very high L
         logical :: use_cl_spline_template = .true.
 
+        !YG: dark energy model parameters
+        real(dl) :: de_w0 = -1_dl   ! initial w
+        real(dl) :: de_w1 = -1.5_dl   ! final w
+        real(dl) :: de_ac = 0.1_dl  ! transition a
+        real(dl) :: de_at = 0.01_dl ! charateristic scale of transition
+
         Type(TSourceWindowHolder), allocatable :: SourceWindows(:)
 
         Type(TCustomSourceParams) :: CustomSources

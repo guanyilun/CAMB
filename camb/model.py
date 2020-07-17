@@ -231,6 +231,10 @@ class CAMBparams(F2003Class):
         ("Log_lvalues", c_bool, "Use log spacing for sampling in L"),
         ("use_cl_spline_template", c_bool,
          "When interpolating use a fiducial spectrum shape to define ratio to spline"),
+        ("de_w0", c_double, "initial w0"),
+        ("de_w1", c_double, "final w1"),
+        ("de_ac", c_double, "transition a"),
+        ("de_at", c_double, "time scale of transition"),
         ("SourceWindows", AllocatableObjectArray(SourceWindow)),
         ("CustomSources", CustomSources)
     ]

@@ -1,26 +1,26 @@
-    module DarkEnergyPPF
-    use DarkEnergyInterface
-    use classes
-    implicit none
+module DarkEnergyPPF
+  use DarkEnergyInterface
+  use classes
+  use results
+  implicit none
 
-    private
+  private
 
-    type, extends(TDarkEnergyEqnOfState) :: TDarkEnergyPPF
-        real(dl) :: c_Gamma_ppf = 0.4_dl
-    contains
-    procedure :: ReadParams => TDarkEnergyPPF_ReadParams
-    procedure, nopass :: PythonClass => TDarkEnergyPPF_PythonClass
-    procedure :: Init => TDarkEnergyPPF_Init
-    procedure :: PerturbedStressEnergy => TDarkEnergyPPF_PerturbedStressEnergy
-    procedure :: diff_rhopi_Add_Term => TDarkEnergyPPF_diff_rhopi_Add_Term
-    procedure, nopass :: SelfPointer => TDarkEnergyPPF_SelfPointer
-    procedure, private :: setcgammappf
-    end type TDarkEnergyPPF
+  type, extends(TDarkEnergyEqnOfState) :: TDarkEnergyPPF
+     real(dl) :: c_Gamma_ppf = 0.4_dl
+   contains
+     procedure :: ReadParams => TDarkEnergyPPF_ReadParams
+     procedure, nopass :: PythonClass => TDarkEnergyPPF_PythonClass
+     procedure :: Init => TDarkEnergyPPF_Init
+     procedure :: PerturbedStressEnergy => TDarkEnergyPPF_PerturbedStressEnergy
+     procedure :: diff_rhopi_Add_Term => TDarkEnergyPPF_diff_rhopi_Add_Term
+     procedure, nopass :: SelfPointer => TDarkEnergyPPF_SelfPointer
+     procedure, private :: setcgammappf
+  end type TDarkEnergyPPF
 
-    public TDarkEnergyPPF
-    contains
-
-    subroutine TDarkEnergyPPF_ReadParams(this, Ini)
+  public TDarkEnergyPPF
+contains
+  subroutine TDarkEnergyPPF_ReadParams(this, Ini)
     use IniObjects
     class(TDarkEnergyPPF) :: this
     class(TIniFile), intent(in) :: Ini
@@ -54,8 +54,31 @@
     use classes
     class(TDarkEnergyPPF), intent(inout) :: this
     class(TCAMBdata), intent(in) :: State
-
+    real(dl), allocatable :: a(:), w(:)
+    real(dl) :: amin = 1E-4, amax = 1._dl, step
+    integer :: n = 10, i
     call this%TDarkEnergyEqnOfState%Init(State)
+    ! make sure we are using the interpolators
+    this%use_tabulated_w = .true.
+    ! precalculate the w(a) equation of state
+    ! set a default w table for the modified theory that i am interested in
+    ! allocate a(:) and w(:)
+    allocate(a(n))
+    allocate(w(n))
+    select type(State)
+    class is (CAMBdata)
+       ! logspace of a from 1e-5 to 1
+       step = 10._dl**((dlog10(amax) - dlog10(amin))/(n-1._dl))
+       a(1) = amin
+       w(1) = State%CP%de_w0
+       do i = 2,n
+          a(i) = a(i-1) * step
+          ! get corresponding w(a) = w0 + (w1-w0)/(exp(-(a-ac)/at) + 1) transition model
+          w(i) = State%CP%de_w0 + (State%CP%de_w1-State%CP%de_w0)/(dexp(-(a(i)-State%CP%de_ac)/State%CP%de_at) + 1._dl)
+       end do
+       ! Use a and w for a, w table by default
+       call this%SetwTable(a, w, n)
+    end select
     if (this%is_cosmological_constant) then
         this%num_perturb_equations = 0
     else
