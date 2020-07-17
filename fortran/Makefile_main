@@ -3,7 +3,7 @@
 #e.g. change RECOMBINATION_FILES to "recfast cosmorec" to also support cosmorec
 POWERSPECTRUM_FILES ?= InitialPower
 REIONIZATION_FILES ?= reionization
-RECOMBINATION_FILES ?= recfast
+RECOMBINATION_FILES ?= recfast recfast_mod
 NONLINEAR_FILES     ?= halofit SecondOrderPK
 DARKENERGY_FILES  ?= DarkEnergyFluid DarkEnergyPPF
 

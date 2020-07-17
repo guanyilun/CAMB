@@ -276,10 +276,11 @@
 
     end function TRecombinationModel_version
 
-    subroutine TRecombinationModel_init(this,State, WantTSpin)
+    subroutine TRecombinationModel_init(this,State, WantTSpin, delta)
     class(TRecombinationModel), target :: this
     class(TCAMBdata), target :: State
     logical, intent(in), optional :: WantTSpin
+    real(dl), intent(in), optional :: delta
     end subroutine TRecombinationModel_init
 
     function TRecombinationModel_dDeltaxe_dtau(this,a, Delta_xe,Delta_nH, Delta_Tm, hdot, kvb,adotoa)

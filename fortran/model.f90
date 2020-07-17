@@ -184,6 +184,8 @@
         logical :: Log_lvalues  = .false. !useful for smooth results at very high L
         logical :: use_cl_spline_template = .true.
 
+        real(dl) :: recfast_b,recfast_d1,recfast_d2,recfast_f2
+
         Type(TSourceWindowHolder), allocatable :: SourceWindows(:)
 
         Type(TCustomSourceParams) :: CustomSources

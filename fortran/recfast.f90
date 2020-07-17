@@ -496,7 +496,7 @@
 
     end function TRecfast_version
 
-    subroutine TRecfast_init(this,State, WantTSpin)
+    subroutine TRecfast_init(this, State, WantTSpin, delta)
     use MiscUtils
     implicit none
     class(TRecfast), target :: this
@@ -505,7 +505,8 @@
     integer :: I
     Type(RecombinationData), pointer :: Calc
     logical, intent(in), optional :: WantTSpin
-    real(dl) :: z,n,x,x0,rhs,x_H,x_He,x_H0,x_He0,H, Yp
+    real(dl), intent(in), optional :: delta
+    real(dl) :: z,n,x,x0,rhs,x_H,x_He,x_H0,x_He0,H,Yp
     real(dl) :: zstart,zend
     real(dl) :: cw(24)
     real(dl), dimension(:,:), allocatable :: w
@@ -568,8 +569,7 @@
         Calc%mu_T = not4/(not4-(not4-1.d0)*Yp)   !Mass per atom
         Calc%fHe = Yp/(not4*(1.d0-Yp))       !n_He_tot / n_H_tot
 
-
-        Calc%Nnow = 3._dl*bigH**2*State%CP%ombh2/(const_eightpi*G*Calc%mu_H*m_H)
+        Calc%Nnow = 3._dl*bigH**2*State%CP%ombh2/(const_eightpi*G*Calc%mu_H*m_H) * delta
 
         n = Calc%Nnow * (1._dl+z)**3
         Calc%z_eq = State%z_eq

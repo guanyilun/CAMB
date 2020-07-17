@@ -35,6 +35,29 @@ class Recfast(RecombinationModel):
     _fortran_class_name_ = 'TRecfast'
 
 
+@fortran_class
+class RecfastMod(Recfast):
+    """
+    RECFAST recombination model (see recfast source for details).
+
+    """
+    _fields_ = [
+        ("RECFAST_fudge", c_double),
+        ("RECFAST_fudge_He", c_double),
+        ("RECFAST_Heswitch", c_int),
+        ("RECFAST_Hswitch", c_bool),
+        ("AGauss1", c_double),
+        ("AGauss2", c_double),
+        ("zGauss1", c_double),
+        ("zGauss2", c_double),
+        ("wGauss1", c_double),
+        ("wGauss2", c_double)
+    ]
+
+    _fortran_class_module_ = 'RecfastMod'
+    _fortran_class_name_ = 'TRecfastMod'
+
+
 @optional_fortran_class
 class CosmoRec(RecombinationModel):
     """
