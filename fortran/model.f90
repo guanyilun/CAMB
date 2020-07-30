@@ -184,7 +184,10 @@
         logical :: Log_lvalues  = .false. !useful for smooth results at very high L
         logical :: use_cl_spline_template = .true.
 
-        real(dl) :: recfast_b,recfast_d1,recfast_d2,recfast_f2
+        real(dl) :: recfast_b = 0._dl
+        real(dl) :: recfast_d1 = 0._dl
+        real(dl) :: recfast_d2 = 0._dl
+        real(dl) :: recfast_f2 = 0._dl
 
         Type(TSourceWindowHolder), allocatable :: SourceWindows(:)
 

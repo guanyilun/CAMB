@@ -247,6 +247,7 @@
 #ifdef HYREC
     use HyRec
 #endif
+    use RecfastMod
     class(TIniFile) :: Ini
     Type(CAMBParams) :: P
     integer num_redshiftwindows
@@ -534,10 +535,19 @@
         ErrMsg = 'Compile with HyRec to use recombination_model=HyRec'
         return
 #endif
+    else if (RecombinationModel == 'RECFASTMOD') then
+        deallocate(P%Recomb)
+        allocate(TRecfastMod::P%Recomb)
     else if (RecombinationModel /= 'RECFAST') then
         ErrMsg =  'Unknown recombination_model: '//trim(RecombinationModel)
         return
     end if
+
+    ! load parameter for recfastmod
+    P%recfast_b=Ini%Read_Double('recfast_b', 0._dl)
+    P%recfast_d1=Ini%Read_Double('recfast_d1', 1._dl)
+    P%recfast_d2=Ini%Read_Double('recfast_d2', 1._dl)
+    P%recfast_f2=Ini%Read_Double('recfast_f2', 1._dl)
 
     call P%Recomb%ReadParams(Ini)
 
