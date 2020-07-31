@@ -35,7 +35,7 @@ class Recfast(RecombinationModel):
     _fortran_class_name_ = 'TRecfast'
 
 @fortran_class
-class RecfastMod(F2003Class):
+class RecfastMod(Recfast):
     """
     RECFAST recombination model (see recfast source for details).
 

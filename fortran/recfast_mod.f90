@@ -57,9 +57,9 @@ contains
     this%f2 = f2
     this%f3 = f3
 
-    ! allocate(TRecfast::this%Rec1)
-    ! allocate(TRecfast::this%Rec2)
-    ! allocate(TRecfast::this%Rec3)
+    allocate(TRecfast::this%Rec1)
+    allocate(TRecfast::this%Rec2)
+    allocate(TRecfast::this%Rec3)
     ! initialize
     call this%Rec1%Init(State, WantTSpin, d1)
     call this%Rec2%Init(State, WantTSpin, d2)
@@ -73,9 +73,10 @@ contains
     ! real(dl) :: d1,d2,d3,f1,f2,f3,b
 
     ! initialize three models
-    allocate(TRecfast::this%Rec1)
-    allocate(TRecfast::this%Rec2)
-    allocate(TRecfast::this%Rec3)
+    ! only needed when running fortran version only
+    ! allocate(TRecfast::this%Rec1)
+    ! allocate(TRecfast::this%Rec2)
+    ! allocate(TRecfast::this%Rec3)
 
     ! allow individual routines to load parameters
     call this%Rec1%ReadParams(Ini)
