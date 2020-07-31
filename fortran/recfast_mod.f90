@@ -9,7 +9,7 @@ module RecfastMod
 
   type, extends(TRecfast) :: TRecfastMod
      real(dl) :: f1,f2,f3,d1,d2,d3
-     class(TRecfast), allocatable :: Rec1, Rec2, Rec3
+     class(TRecfast), allocatable :: Rec1, Rec2, Rec3, Rec0
    contains
      procedure :: Validate => TRecfastMod_Validate
      procedure :: xe_Tm => TRecfastMod_xe_Tm !ionization fraction and baryon temperature
@@ -28,12 +28,12 @@ module RecfastMod
 
 contains
 
-  subroutine TRecfastMod_init(this, State, WantTSpin, delta)
+  subroutine TRecfastMod_init(this, State, WantTSpin, delta_in)
     implicit none
     class(TRecfastMod), target :: this
     class(TCAMBdata), target :: State
     logical, intent(in), optional :: WantTSpin
-    real(dl), intent(in), optional :: delta
+    real(dl), intent(in), optional :: delta_in
     real(dl) :: d1,d2,d3,f1,f2,f3,b
     select type(State)
     class is (CAMBdata)
@@ -57,10 +57,13 @@ contains
     this%f2 = f2
     this%f3 = f3
 
+    allocate(TRecfast::this%Rec0)
     allocate(TRecfast::this%Rec1)
     allocate(TRecfast::this%Rec2)
     allocate(TRecfast::this%Rec3)
+
     ! initialize
+    call this%Rec0%Init(State, WantTSpin)  ! original
     call this%Rec1%Init(State, WantTSpin, d1)
     call this%Rec2%Init(State, WantTSpin, d2)
     call this%Rec3%Init(State, WantTSpin, d3)
@@ -74,11 +77,13 @@ contains
 
     ! initialize three models
     ! only needed when running fortran version only
+    ! allocate(TRecfast::this%Rec0)
     ! allocate(TRecfast::this%Rec1)
     ! allocate(TRecfast::this%Rec2)
     ! allocate(TRecfast::this%Rec3)
 
     ! allow individual routines to load parameters
+    call this%Rec0%ReadParams(Ini)
     call this%Rec1%ReadParams(Ini)
     call this%Rec2%ReadParams(Ini)
     call this%Rec3%ReadParams(Ini)
@@ -102,6 +107,7 @@ contains
     class(TRecfastMod),intent(in) :: this
     logical, intent(inout) :: OK
 
+    call this%Rec0%Validate(OK)
     call this%Rec1%Validate(OK)
     call this%Rec2%Validate(OK)
     call this%Rec3%Validate(OK)
@@ -111,35 +117,39 @@ contains
   function TRecfastMod_tm(this,a)
     class(TRecfastMod) :: this
     real(dl), intent(in) :: a
-    real(dl) TRecfastMod_tm, xe1, xe2, xe3
+    real(dl) TRecfastMod_tm !, xe1, xe2, xe3
 
-    xe1 = this%Rec1%T_m(a)
-    xe2 = this%Rec2%T_m(a)
-    xe3 = this%Rec3%T_m(a)
+    ! xe1 = this%Rec1%T_m(a)
+    ! xe2 = this%Rec2%T_m(a)
+    ! xe3 = this%Rec3%T_m(a)
     ! sum up
-    TRecfastMod_tm = this%f1*this%d1*xe1 + this%f2*this%d2*xe2 + this%f3*this%d3*xe3
+    ! TRecfastMod_tm = this%f1*this%d1*xe1 + this%f2*this%d2*xe2 + this%f3*this%d3*xe3
+    TRecfastMod_tm = this%Rec0%T_m(a)
   end function TRecfastMod_tm
 
   function TRecfastMod_ts(this,a)
     class(TRecfastMod) :: this
     real(dl), intent(in) :: a
-    real(dl) TRecfastMod_ts, xe1, xe2, xe3
+    real(dl) TRecfastMod_ts !, xe1, xe2, xe3
 
-    xe1 = this%Rec1%T_s(a)
-    xe2 = this%Rec2%T_s(a)
-    xe3 = this%Rec3%T_s(a)
+    ! xe1 = this%Rec1%T_s(a)
+    ! xe2 = this%Rec2%T_s(a)
+    ! xe3 = this%Rec3%T_s(a)
     ! sum up
-    TRecfastMod_ts = this%f1*this%d1*xe1 + this%f2*this%d2*xe2 + this%f3*this%d3*xe3
+    ! TRecfastMod_ts = this%f1*this%d1*xe1 + this%f2*this%d2*xe2 + this%f3*this%d3*xe3
+    TRecfastMod_ts = this%Rec0%T_s(a)
   end function TRecfastMod_ts
 
   subroutine TRecfastMod_xe_Tm(this, a, xe, Tm)
     class(TRecfastMod) :: this
     real(dl), intent(in) :: a
     real(dl), intent(out) :: xe, Tm
-
-    call this%Rec1%xe_Tm(a, xe, Tm)
-    call this%Rec2%xe_Tm(a, xe, Tm)
-    call this%Rec3%xe_Tm(a, xe, Tm)
+    real(dl) xe1, xe2, xe3, Tm1, Tm2, Tm3
+    call this%Rec1%xe_Tm(a, xe1, Tm1)
+    call this%Rec2%xe_Tm(a, xe2, Tm2)
+    call this%Rec3%xe_Tm(a, xe3, Tm3)
+    xe = this%f1*this%d1*xe1 + this%f2*this%d2*xe2 + this%f3*this%d3*xe3
+    Tm = this%f1*this%d1*Tm1 + this%f2*this%d2*Tm2 + this%f3*this%d3*Tm3
   end subroutine TRecfastMod_xe_Tm
 
 
@@ -149,17 +159,18 @@ contains
     class(TRecfastMod) :: this
     real(dl) TRecfastMod_dDeltaxe_dtau
     real(dl), intent(in):: a, Delta_xe, Delta_nH, Delta_Tm, hdot, kvb, adotoa
-    real(dl) xe1, xe2, xe3
-    xe1 = this%Rec1%dDeltaxe_dtau(a, Delta_xe, Delta_nH, Delta_Tm, hdot, kvb, adotoa)
-    xe2 = this%Rec2%dDeltaxe_dtau(a, Delta_xe, Delta_nH, Delta_Tm, hdot, kvb, adotoa)
-    xe3 = this%Rec3%dDeltaxe_dtau(a, Delta_xe, Delta_nH, Delta_Tm, hdot, kvb, adotoa)
-    TRecfastMod_dDeltaxe_dtau = this%f1*this%d1*xe1 + this%f2*this%d2*xe2 + this%f3*this%d3*xe3
+    ! real(dl) xe1, xe2, xe3
+    ! xe1 = this%Rec1%dDeltaxe_dtau(a, Delta_xe, Delta_nH, Delta_Tm, hdot, kvb, adotoa)
+    ! xe2 = this%Rec2%dDeltaxe_dtau(a, Delta_xe, Delta_nH, Delta_Tm, hdot, kvb, adotoa)
+    ! xe3 = this%Rec3%dDeltaxe_dtau(a, Delta_xe, Delta_nH, Delta_Tm, hdot, kvb, adotoa)
+    ! TRecfastMod_dDeltaxe_dtau = this%f1*this%d1*xe1 + this%f2*this%d2*xe2 + this%f3*this%d3*xe3
+    TRecfastMod_dDeltaxe_dtau = this%Rec0%dDeltaxe_dtau(a, Delta_xe, Delta_nH, Delta_Tm, hdot, kvb, adotoa)
   end function TRecfastMod_dDeltaxe_dtau
 
 
   real(dl) function TRecfastMod_Get_Saha_z(this)
     class(TRecfastMod) :: this
-    TRecfastMod_Get_Saha_z =  this%Calc%recombination_saha_z
+    TRecfastMod_Get_Saha_z =  this%Rec0%Calc%recombination_saha_z
   end function TRecfastMod_Get_Saha_z
 
   subroutine TRecfastMod_SelfPointer(cptr,P)

@@ -496,7 +496,7 @@
 
     end function TRecfast_version
 
-    subroutine TRecfast_init(this, State, WantTSpin, delta)
+    subroutine TRecfast_init(this, State, WantTSpin, delta_in)
     use MiscUtils
     implicit none
     class(TRecfast), target :: this
@@ -505,13 +505,13 @@
     integer :: I
     Type(RecombinationData), pointer :: Calc
     logical, intent(in), optional :: WantTSpin
-    real(dl), intent(in), optional :: delta
+    real(dl), intent(in), optional :: delta_in
     real(dl) :: z,n,x,x0,rhs,x_H,x_He,x_H0,x_He0,H,Yp
     real(dl) :: zstart,zend
     real(dl) :: cw(24)
     real(dl), dimension(:,:), allocatable :: w
     real(dl) :: y(4)
-    real(dl) :: C10, tau_21Ts
+    real(dl) :: C10, tau_21Ts, delta
     integer :: ind, nw
     real(dl), parameter :: tol=1.D-5                !Tolerance for R-K
     interface
@@ -526,6 +526,11 @@
     end interface
     procedure(TDverk) :: dverk
 
+    if(present(delta_in))then
+       delta = delta_in
+    else
+       delta = 1._dl
+    endif
 
     if (.not. allocated(this%Calc)) allocate(this%Calc)
     Calc => this%Calc
