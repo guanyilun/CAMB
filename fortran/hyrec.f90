@@ -56,14 +56,21 @@
     THyrec_dtauda = dtauda(CurrentState,a)
     end function THyrec_dtauda
 
-    subroutine THyRec_init(this,State, WantTSpin)
+    subroutine THyRec_init(this,State, WantTSpin, delta_in)
     class(THyRec), target :: this
     class(TCAMBdata), target :: State
     logical, intent(in), optional :: WantTSpin
-    real(dl) OmegaB, OmegaC, OmegaN, h2
+    real(dl), intent(in), optional :: delta_in
+    real(dl) OmegaB, OmegaC, OmegaN, h2, delta
     external rec_build_history_camb
 
     if (DefaultFalse(WantTSpin)) call MpiStop('HyRec does not support 21cm')
+
+    if(present(delta_in))then
+       delta = delta_in
+    else
+       delta = 1._dl
+    endif
 
     select type(State)
     class is (CAMBdata)
@@ -73,7 +80,7 @@
             call MpiStop('HyRec currently does not support evolving Delta x_e')
 
         h2 = (State%CP%H0/100)**2
-        OmegaB = State%CP%ombh2/h2
+        OmegaB = State%CP%ombh2/h2 * delta
         OmegaN = State%CP%omnuh2/h2
         OmegaC = State%CP%omch2/h2
 
@@ -95,4 +102,3 @@
     end subroutine THyRec_SelfPointer
 
     end module HyRec
-
