@@ -77,3 +77,9 @@ class HyRec(RecombinationModel):
     """
     _fortran_class_module_ = 'HyRec'
     _fortran_class_name_ = 'THyRec'
+
+
+@optional_fortran_class
+class HyRecMod(RecombinationModel):
+    _fortran_class_module_ = 'HyRecMod'
+    _fortran_class_name_ = 'THyRecMod'
